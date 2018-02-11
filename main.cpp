@@ -6,20 +6,24 @@ using namespace std;
 //=====================================================================================================
 class Employee
 {
-private:
-  std::string name;
-
-protected:
+  //
+  // Base class for storing basic employe information
+  //
   
-  int         salary;
+private:
+  
+  std::string name;
+  double      base_salary;
   
 public:
   
   Employee() {}  
-  Employee(const std::string _name, int _salary) :name(_name), salary(_salary) {}
+  Employee(const std::string _name, double _base_salary) :name(_name), base_salary(_base_salary) {}
+  
   virtual ~Employee() {}
-
-  const std::string getName () const { return name; }
+  
+  const std::string& getName      () const { return name;         }
+  double             getBaseSalary() const { return base_salary; }
   
   virtual double getActualSalary() const = 0;
   
@@ -29,32 +33,43 @@ public:
 //=====================================================================================================
 class SalaryEmployee: public Employee
 {
+  //
+  // Salaried employee has a contract with company and can work part time or over time
+  //
 private:
-  int percentage;
+  
+  double work_fraction;
   
 public:
   
   SalaryEmployee() {}
-  SalaryEmployee(int _percentage):percentage(_percentage) {}
+  SalaryEmployee(const std::string _name,
+		 double _base_salary,
+		 double _work_fraction):
+    Employee     (_name, _base_salary),
+    work_fraction(_work_fraction)
+  {
+  }
   
   virtual ~SalaryEmployee() {}
   
   virtual double getActualSalary() const
   {
-    return percentage*salary/100.0;
+    return getBaseSalary()*work_fraction;
   }
   
   
-  void print()
+  void print() const
   {
     cout << "SalaryEmploye - name=" << getName()      << endl
-	 << "  base salary   = " << salary            << endl      
-	 << "  percentage    = " << percentage        << endl
+	 << "  base salary   = " << getBaseSalary()   << endl      
+	 << "  percentage    = " << work_fraction     << endl
       	 << "  actual salary = " << getActualSalary() << endl;
   }
 };
 
 //=====================================================================================================
+/*
 class HourlyEmployee : protected Employee
 {
 protected:
@@ -78,20 +93,13 @@ public:
 	 <<  "  hourlyRate = " << hourlyRate << endl;
   }
 };
-
+*/
 
 //=====================================================================================================
 int main()
 {
-  //Employee name(101, 3000);
-  //name.print();
-  
-  
-  SalaryEmployee amount(2500);
-  amount.print();
-  
-  HourlyEmployee sun(8);
-  sun.print();
+  SalaryEmployee *john = new SalaryEmployee("John", 200.0, 0.90);
+  john->print();
   
   return 0;
 }
