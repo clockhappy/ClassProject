@@ -1,5 +1,14 @@
 #include <iostream>
 #include <string>
+#include <vector>
+#include <algorithm>
+
+//
+// Check out:
+//      -- what lambda functions mean
+//      -- what operator functions means
+//      -- what return by reference means
+//
 
 using namespace std;
 
@@ -28,6 +37,24 @@ public:
   virtual double getActualSalary() const = 0;
   
   virtual void print() const = 0;
+};
+
+//=====================================================================================================
+struct SortByName
+{
+  bool operator()(const Employee *lhs, const Employee *rhs)
+  {
+    return lhs->getName() < rhs->getName();
+  }
+};
+
+//=====================================================================================================
+struct SortBySalary
+{
+  bool operator()(const Employee *lhs, const Employee *rhs)
+  {
+    return lhs->getActualSalary() > rhs->getActualSalary();
+  }
 };
 
 //=====================================================================================================
@@ -61,7 +88,7 @@ public:
   
   void print() const
   {
-    cout << "SalaryEmploye - name=" << getName()      << endl
+    cout << "SalaryEmployee - " << getName()     << endl
 	 << "  base salary   = " << getBaseSalary()   << endl      
 	 << "  percentage    = " << work_fraction     << endl
       	 << "  actual salary = " << getActualSalary() << endl;
@@ -69,37 +96,90 @@ public:
 };
 
 //=====================================================================================================
-/*
-class HourlyEmployee : protected Employee
+class HourlyEmployee : public Employee
 {
+  //
+  // Employee who is paid by the hour
+  //
 protected:
   
-  long hourlyRate;
+  double hourly_rate;
+  double hours_worked;
   
 public:
   
   HourlyEmployee() {}
   
-  HourlyEmployee(long long _hourlyRate) :hourlyRate(_hourlyRate) {}
-
-  void SetValueRate(int _hourlyRate)
+  HourlyEmployee(const std::string &name, double _rate, double _hours) :
+    Employee    (name, 0.0),
+    hourly_rate (_rate),
+    hours_worked(_hours)
   {
-    hourlyRate=hourlyRate;
+  }
+
+
+  virtual double getActualSalary() const
+  {
+    return hourly_rate*hours_worked;
   }
   
-  void print()
+  
+  void print() const
   {
-    cout << "HourlyEmployee - name=" << getName() << endl
-	 <<  "  hourlyRate = " << hourlyRate << endl;
-  }
+    cout << "HourlyEmployee - " << getName()     << endl
+	 << "  base salary   = " << getBaseSalary()   << endl      
+	 << "  hourly_rate   = " << hourly_rate       << endl
+      	 << "  hours_worked  = " << hours_worked      << endl
+      	 << "  actual salary = " << getActualSalary() << endl;
+  }  
 };
-*/
 
 //=====================================================================================================
 int main()
 {
-  SalaryEmployee *john = new SalaryEmployee("John", 200.0, 0.90);
-  john->print();
+  Employee *anna = new SalaryEmployee("Anna", 500.0, 1.20);
+  
+  Employee *john = new SalaryEmployee("John", 200.0, 0.90);
+
+  Employee *jim  = new HourlyEmployee("Jim",  30.0,  4.50);
+
+  std::vector<Employee *> employees;
+
+  employees.push_back(john);
+  employees.push_back(jim);
+  employees.push_back(anna);
+
+  cout << "-----------------------------------------------------------------" << endl
+       << "Print all initial employees" << endl;
+  
+  for(const Employee *employee: employees) {
+    employee->print();
+  }
+  
+  
+  //
+  // Sort by name
+  //
+  std::sort(employees.begin(), employees.end(), SortByName());
+
+  cout << "-----------------------------------------------------------------" << endl
+       << "Print employees sorted by name:" << endl;
+  
+  for(const Employee *employee: employees) {
+    employee->print();
+  }
+
+  //
+  // Sort by salary
+  //
+  std::sort(employees.begin(), employees.end(), SortBySalary());
+
+  cout << "-----------------------------------------------------------------" << endl
+       << "Print employees sorted by salary:" << endl;
+  
+  for(const Employee *employee: employees) {
+    employee->print();
+  }
   
   return 0;
 }
